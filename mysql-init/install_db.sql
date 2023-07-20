@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS news_db;
+USE news_db;

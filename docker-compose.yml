@@ -1,0 +1,82 @@
+version: '3.8'
+
+networks:
+  laravel:
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - news_db
+      - php
+      - npm
+    networks:
+      - laravel
+
+  news_db:
+    image: mysql:8.0.31
+    container_name: news_db
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www/html
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./mysql-init:/tmp/database
+    environment:
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 6p@u4*b5N75F
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    command: mysqld --init-file="/tmp/database/install_db.sql"
+    healthcheck:
+      test: "curl -f news_db:3306"
+      interval: 10s
+      timeout: 8s
+      retries: 5
+    networks:
+      - laravel
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "9000:9000"
+    depends_on:
+      news_db:
+          condition: service_healthy
+    command: sh -c "php artisan optimize && php artisan migrate && php artisan test && php-fpm"
+    networks:
+      - laravel
+
+  npm:
+    image: node:19.0-alpine3.16
+    container_name: npm
+    tty: true
+    working_dir: /var/www/html
+    volumes:
+        - ./src:/var/www/html
+    command: sh -c "npm install && npm run build && tail -f /dev/null"
+    networks:
+        - laravel
+  composer:
+    container_name: composer
+    image: composer:2.5.4
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+    command: sh -c "composer install --ignore-platform-reqs && composer dump-autoload && tail -f /dev/null"
+    networks:
+      - laravel
