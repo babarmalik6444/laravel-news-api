@@ -15,7 +15,6 @@ services:
     depends_on:
       - news_db
       - php
-      - npm
     networks:
       - laravel
 
@@ -61,16 +60,6 @@ services:
     networks:
       - laravel
 
-  npm:
-    image: node:19.0-alpine3.16
-    container_name: npm
-    tty: true
-    working_dir: /var/www/html
-    volumes:
-        - ./src:/var/www/html
-    command: sh -c "npm install && npm run build && tail -f /dev/null"
-    networks:
-        - laravel
   composer:
     container_name: composer
     image: composer:2.5.4
