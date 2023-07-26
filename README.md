@@ -1,4 +1,4 @@
-# Laravel Vue Cart
+# Laravel News API
 Project is developer using following tech stack
 - PHP 8.2
 - MySQL 8
@@ -9,11 +9,11 @@ Project is developer using following tech stack
 # Installation
 Clone this repo from following url
 ```sh
-https://github.com/babarmalik6444/laravel-vue-cart.git
+https://github.com/babarmalik6444/laravel-news-api.git
 ```
 Navigate to project folder
 ```sh
-cd laravel-vue-cart
+cd laravel-news-api
 ```
 Copy content from .env.example to .env file <br/>
 
